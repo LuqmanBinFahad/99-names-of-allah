@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The 99 Names of Allah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to bottom right, #f3f4f6, #e5e7eb);
+        }
+        .container-main {
+            max-width: 1200px;
+        }
+        .name-card {
+            transition: all 0.3s ease-in-out;
+            transform: scale(1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .name-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .name-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(-100%);
+            transition: transform 0.5s ease-in-out;
+            z-index: -1;
+        }
+        .name-card:hover::before {
+            transform: translateX(0);
+        }
+        .modal-content {
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="container-main mx-auto p-6 bg-white rounded-xl shadow-lg">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-2">The 99 Names of Allah</h1>
+            <p class="text-lg text-gray-600">Al-Asma-ul-Husna</p>
+        </header>
+
+        <main class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <!-- Names will be dynamically generated here -->
+        </main>
+    </div>
+
+    <!-- Modal for displaying details -->
+    <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
+        <div class="modal-content bg-white rounded-xl shadow-2xl p-6 w-full max-w-xl mx-auto border border-gray-200">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modal-title" class="text-3xl font-bold text-gray-900"></h3>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-900 text-3xl font-bold">&times;</button>
+            </div>
+            <p id="modal-arabic" class="text-4xl text-right font-light mb-4 text-green-700"></p>
+            <p id="modal-meaning" class="text-lg text-gray-700 mb-4"></p>
+            <p id="modal-example" class="text-base text-gray-500 italic"></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const namesData = [
+                { arabic: "ٱلرَّحْمَـٰن", transliteration: "Ar-Raḥmān", meaning: "The Most Compassionate, The Beneficent", example: "Allah provides mercy to all His creation, regardless of faith—like the air we breathe, rain that falls on everyone." },
+                { arabic: "ٱلرَّحِيم", transliteration: "Ar-Raḥīm", meaning: "The Most Merciful, The Especially Merciful", example: "Allah shows special mercy to believers in this world and the next, forgiving sins when they repent sincerely." },
+                { arabic: "ٱلْمَلِك", transliteration: "Al-Malik", meaning: "The King, The Sovereign", example: "Everything in the heavens and earth belongs to Him. Human kings rule temporarily, but Allah’s sovereignty is eternal." },
+                { arabic: "ٱلْقُدُّوس", transliteration: "Al-Quddūs", meaning: "The Pure, The Holy", example: "Allah is free from all defects, mistakes, and imperfections." },
+                { arabic: "ٱلسَّلَام", transliteration: "As-Salām", meaning: "The Source of Peace, The Giver of Safety", example: "True peace of the heart comes only from Allah. Paradise is called “Dār as-Salām” (Home of Peace)." },
+                { arabic: "ٱلْمُؤْمِن", transliteration: "Al-Mu’min", meaning: "The Giver of Faith and Security", example: "Allah grants safety from fear and guides people to faith." },
+                { arabic: "ٱلْمُهَيْمِن", transliteration: "Al-Muhaymin", meaning: "The Protector, The Guardian", example: "Allah watches over His creation, preserving and sustaining them." },
+                { arabic: "ٱلْعَزِيز", transliteration: "Al-‘Azīz", meaning: "The Almighty, The All-Powerful", example: "No one can overcome Him. Even the strongest nations collapse, but His power never diminishes." },
+                { arabic: "ٱلْجَبَّار", transliteration: "Al-Jabbār", meaning: "The Compeller, The Restorer", example: "Allah mends the broken hearts of His servants and enforces His will over creation." },
+                { arabic: "ٱلْمُتَكَبِّر", transliteration: "Al-Mutakabbir", meaning: "The Supreme, The Majestic", example: "Pride in humans is blameworthy, but Allah is truly above all, deserving glory and greatness." },
+                { arabic: "ٱلْخَالِق", transliteration: "Al-Khāliq", meaning: "The Creator", example: "Allah brings into existence everything from nothing — from the smallest atom to galaxies." },
+                { arabic: "ٱلْبَارِئ", transliteration: "Al-Bāriʾ", meaning: "The Evolver, The Maker of Order", example: "Allah creates in proportion and balance — like the human body with perfect systems (nervous, circulatory, etc.)." },
+                { arabic: "ٱلْمُصَوِّر", transliteration: "Al-Muṣawwir", meaning: "The Fashioner, The Shaper of Beauty", example: "Every human has a unique face, fingerprint, and voice — Allah designs them distinctly." },
+                { arabic: "ٱلْغَفَّار", transliteration: "Al-Ghaffār", meaning: "The All-Forgiving", example: "Even if sins are as numerous as the foam on the sea, Allah forgives those who repent sincerely." },
+                { arabic: "ٱلْقَهَّار", transliteration: "Al-Qahhār", meaning: "The Subduer, The Ever-Dominating", example: "Pharaoh thought himself a god, but Allah drowned him, showing His supreme power." },
+                { arabic: "ٱلْوَهَّاب", transliteration: "Al-Wahhāb", meaning: "The Bestower", example: "Life, health, knowledge, children, and sustenance are gifts Allah freely grants." },
+                { arabic: "ٱلرَّزَّاق", transliteration: "Ar-Razzāq", meaning: "The Provider, The Sustainer", example: "Birds leave their nests hungry every morning and return full in the evening — Allah provides for them." },
+                { arabic: "ٱلْفَتَّاح", transliteration: "Al-Fattāḥ", meaning: "The Opener, The Granter of Victory", example: "Allah opens doors of opportunities, ease, and guidance when people turn to Him." },
+                { arabic: "ٱلْعَلِيم", transliteration: "Al-‘Alīm", meaning: "The All-Knowing", example: "Allah knows what is in the hearts, even hidden intentions and thoughts." },
+                { arabic: "ٱلْقَابِض", transliteration: "Al-Qābiḍ", meaning: "The Withholder, The Restrainer", example: "Sometimes Allah withholds wealth or health as a test, to purify or bring someone closer to Him." },
+                { arabic: "ٱلْبَاسِط", transliteration: "Al-Bāsit", meaning: "The Expander", example: "Allah expands provision, knowledge, and hearts with faith and light whenever He wills." },
+                { arabic: "ٱلْخَافِض", transliteration: "Al-Khāfiḍ", meaning: "The Abaser, The One Who Lowers", example: "Allah humbles the arrogant and lowers nations or individuals who rebel against Him." },
+                { arabic: "ٱلرَّافِع", transliteration: "Ar-Rāfi‘", meaning: "The Exalter, The Uplifter", example: "Allah raises the ranks of the righteous in this world and grants them honor in the Hereafter." },
+                { arabic: "ٱلْمُعِز", transliteration: "Al-Mu‘izz", meaning: "The Bestower of Honor", example: "True dignity and respect come only from Allah — not from wealth or status." },
+                { arabic: "ٱلْمُذِل", transliteration: "Al-Mudhill", meaning: "The Humiliator", example: "Those who mock Allah’s signs are disgraced — like the people of ‘Ād and Thamūd." },
+                { arabic: "ٱلسَّمِيع", transliteration: "As-Samī‘", meaning: "The All-Hearing", example: "Allah hears every prayer and whisper, even the unspoken cries of the heart." },
+                { arabic: "ٱلْبَصِير", transliteration: "Al-Baṣīr", meaning: "The All-Seeing", example: "Nothing escapes His sight — from the smallest insect in darkness to hidden deeds of humans." },
+                { arabic: "ٱلْحَكَم", transliteration: "Al-Ḥakam", meaning: "The Judge, The Giver of Justice", example: "On the Day of Judgment, Allah will settle every dispute with absolute fairness." },
+                { arabic: "ٱلْعَدْل", transliteration: "Al-‘Adl", meaning: "The Utterly Just", example: "Allah never wrongs anyone; even a speck of good will be rewarded, and injustice will not prevail." },
+                { arabic: "ٱللَّطِيف", transliteration: "Al-Laṭīf", meaning: "The Subtle, The Gentle, The Kind", example: "Allah arranges matters in ways we cannot perceive — like a hardship turning into hidden blessings." },
+                { arabic: "ٱلْخَبِير", transliteration: "Al-Khabīr", meaning: "The All-Aware", example: "Allah is fully aware of what is hidden in hearts, intentions, and secret actions." },
+                { arabic: "ٱلْحَلِيم", transliteration: "Al-Ḥalīm", meaning: "The Forbearing, The Most Patient", example: "Despite people sinning, Allah does not punish instantly but gives time for repentance." },
+                { arabic: "ٱلْعَظِيم", transliteration: "Al-‘Aẓīm", meaning: "The Magnificent, The Supreme", example: "The vastness of the heavens and earth are just a sign of Allah’s supreme greatness." },
+                { arabic: "ٱلْغَفُور", transliteration: "Al-Ghafūr", meaning: "The All-Forgiving", example: "Allah forgives repeated sins whenever one returns to Him sincerely." },
+                { arabic: "ٱلشَّكُور", transliteration: "Ash-Shakūr", meaning: "The Most Appreciative", example: "A small act of kindness, like giving water to a thirsty animal, is rewarded greatly by Allah." },
+                { arabic: "ٱلْعَلِيّ", transliteration: "Al-‘Aliyy", meaning: "The Most High, The Exalted", example: "Allah is above His creation in status, power, and essence — nothing is higher than Him." },
+                { arabic: "ٱلْكَبِير", transliteration: "Al-Kabīr", meaning: "The Most Great", example: "Human greatness is limited, but Allah’s greatness is beyond imagination or comparison." },
+                { arabic: "ٱلْحَفِيظ", transliteration: "Al-Ḥafīẓ", meaning: "The Preserver, The Protector", example: "Allah protects the Qur’an from corruption and safeguards believers from harm." },
+                { arabic: "ٱلْمُقِيت", transliteration: "Al-Muqīt", meaning: "The Nourisher, The Sustainer of All", example: "Every creature’s food and energy come only by Allah’s decree." },
+                { arabic: "ٱلْحَسِيب", transliteration: "Al-Ḥasīb", meaning: "The Reckoner, The One Who Takes Account", example: "On the Day of Judgment, Allah will hold every soul accountable for even the smallest deeds." },
+                { arabic: "ٱلْجَلِيل", transliteration: "Al-Jalīl", meaning: "The Majestic, The Sublime", example: "Allah combines greatness, honor, and glory in ways beyond human comprehension." },
+                { arabic: "ٱلْكَرِيم", transliteration: "Al-Karīm", meaning: "The Generous, The Bountiful", example: "Allah gives without limit — health, sustenance, guidance — even to those who disobey Him." },
+                { arabic: "ٱلرَّقِيب", transliteration: "Ar-Raqīb", meaning: "The Watchful", example: "Allah watches over every soul, every heartbeat, and every thought. Nothing escapes His sight." },
+                { arabic: "ٱلْمُجِيب", transliteration: "Al-Mujīb", meaning: "The Responsive, The Answerer of Prayers", example: "Every sincere du‘ā’ is heard — sometimes answered immediately, sometimes later, or in a better form." },
+                { arabic: "ٱلْوَاسِع", transliteration: "Al-Wāsi‘", meaning: "The All-Encompassing, The Boundless", example: "Allah’s mercy, knowledge, and power extend over all things." },
+                { arabic: "ٱلْحَكِيم", transliteration: "Al-Ḥakīm", meaning: "The All-Wise", example: "Everything Allah decrees has wisdom, even if humans cannot see it — like trials that bring growth." },
+                { arabic: "ٱلْوَدُود", transliteration: "Al-Wadūd", meaning: "The Loving, The Affectionate", example: "Allah loves His servants more than a mother loves her child, guiding them with care and compassion." },
+                { arabic: "ٱلْمَجِيد", transliteration: "Al-Majīd", meaning: "The Glorious, The Most Honorable", example: "Allah possesses infinite glory and honor, far above creation’s praise." },
+                { arabic: "ٱلْبَاعِث", transliteration: "Al-Bā‘ith", meaning: "The Resurrector, The Raiser of the Dead", example: "Allah will resurrect all souls on the Day of Judgment for accountability." },
+                { arabic: "ٱلشَّهِيد", transliteration: "Ash-Shahīd", meaning: "The Witness", example: "Allah is witness to every deed, whether done secretly or openly, ensuring justice is served." },
+                { arabic: "ٱلْحَق", transliteration: "Al-Ḥaqq", meaning: "The Truth, The Reality", example: "Allah’s existence, promises, and words are the ultimate truth — unlike worldly illusions." },
+                { arabic: "ٱلْوَكِيل", transliteration: "Al-Wakīl", meaning: "The Trustee, The Dependable", example: "Whoever relies on Allah (tawakkul), He is sufficient for their needs." },
+                { arabic: "ٱلْقَوِي", transliteration: "Al-Qawiyy", meaning: "The All-Strong", example: "No force can overpower Allah. He grants strength to the weak and takes it from the mighty." },
+                { arabic: "ٱلْمَتِين", transliteration: "Al-Matīn", meaning: "The Firm, The Steadfast", example: "Allah’s power never diminishes, nor does He ever tire in maintaining the universe." },
+                { arabic: "ٱلْوَلِيّ", transliteration: "Al-Waliyy", meaning: "The Protecting Friend", example: "Allah befriends the believers, guiding and protecting them in every aspect of life." },
+                { arabic: "ٱلْحَمِيد", transliteration: "Al-Ḥamīd", meaning: "The Praiseworthy", example: "Everything in the heavens and earth praises Allah, whether humans recognize it or not." },
+                { arabic: "ٱلْمُحْصِي", transliteration: "Al-Muḥṣī", meaning: "The Accounter, The Numberer of All", example: "Every deed, word, and intention is counted precisely by Allah, even what people forget." },
+                { arabic: "ٱلْمُبْدِئ", transliteration: "Al-Mubdiʾ", meaning: "The Originator, The Beginner", example: "Allah created the universe from nothing, without model or precedent." },
+                { arabic: "ٱلْمُعِيد", transliteration: "Al-Muʿīd", meaning: "The Restorer, The One Who Brings Back", example: "Allah will bring creation back to life after death for resurrection." },
+                { arabic: "ٱلْمُحْيِي", transliteration: "Al-Muḥyī", meaning: "The Giver of Life", example: "From lifeless soil, Allah brings forth plants; He creates life in the womb and revives hearts with faith." },
+                { arabic: "ٱلْمُمِيت", transliteration: "Al-Mumīt", meaning: "The Creator of Death, The Bringer of Death", example: "Allah takes life at its appointed time — no soul can delay or advance its death." },
+                { arabic: "ٱلْحَيّ", transliteration: "Al-Ḥayy", meaning: "The Ever-Living", example: "Allah never dies or perishes; His life is perfect and eternal, unlike creation’s." },
+                { arabic: "ٱلْقَيُّوم", transliteration: "Al-Qayyūm", meaning: "The Sustainer, The Self-Subsisting", example: "Allah upholds and maintains the heavens and the earth without ever tiring." },
+                { arabic: "ٱلْوَاجِد", transliteration: "Al-Wājid", meaning: "The Finder, The Perceiver", example: "Nothing is ever lost to Allah — He perceives and knows all that exists." },
+                { arabic: "ٱلْمَاجِد", transliteration: "Al-Mājid", meaning: "The Illustrious, The Most Glorious", example: "Allah is full of glory, majesty, and generosity beyond measure." },
+                { arabic: "ٱلْواحِد", transliteration: "Al-Wāḥid", meaning: "The One, The Unique", example: "There is no partner, rival, or equal to Allah — He alone deserves worship." },
+                { arabic: "ٱلصَّمَد", transliteration: "As-Ṣamad", meaning: "The Eternal, The Self-Sufficient", example: "All creatures depend on Allah for every need, while He depends on none." },
+                { arabic: "ٱلْقَادِر", transliteration: "Al-Qādir", meaning: "The All-Powerful, The Omnipotent", example: "Allah can create, change, or command anything with just “Be!” and it is." },
+                { arabic: "ٱلْمُقْتَدِر", transliteration: "Al-Muqtadir", meaning: "The All-Determiner, The Dominant", example: "Allah executes His will with absolute mastery, controlling destinies and outcomes." },
+                { arabic: "ٱلْمُقَدِّم", transliteration: "Al-Muqaddim", meaning: "The Expediter, The One Who Brings Forward", example: "Allah elevates some people in rank, knowledge, or nearness to Him before others." },
+                { arabic: "ٱلْمُؤَخِّر", transliteration: "Al-Mu’akhkhir", meaning: "The Delayer, The One Who Puts Back", example: "Allah delays punishment or guidance for some, out of wisdom and justice." },
+                { arabic: "ٱلأوَّل", transliteration: "Al-Awwal", meaning: "The First", example: "Allah existed before everything; nothing is before Him." },
+                { arabic: "ٱلآخِر", transliteration: "Al-Ākhir", meaning: "The Last", example: "Allah remains after everything perishes; nothing is after Him." },
+                { arabic: "ٱلظَّاهِر", transliteration: "Az-Ẓāhir", meaning: "The Manifest, The Evident", example: "Signs of Allah’s existence are visible everywhere in creation." },
+                { arabic: "ٱلْبَاطِن", transliteration: "Al-Bāṭin", meaning: "The Hidden, The Inward", example: "Allah’s essence is beyond human perception, though His presence is nearer than our jugular vein." },
+                { arabic: "ٱلْوَالِي", transliteration: "Al-Wālī", meaning: "The Governor, The Patron", example: "Allah manages all affairs of the universe with perfect control and care." },
+                { arabic: "ٱلْمُتَعَالِي", transliteration: "Al-Muta‘ālī", meaning: "The Most High, The Exalted", example: "Allah is exalted above any weakness, imperfection, or likeness to creation." },
+                { arabic: "ٱلْبَرّ", transliteration: "Al-Barr", meaning: "The Source of All Goodness, The Benefactor", example: "Allah showers His servants with kindness, even when they fall short in gratitude." },
+                { arabic: "ٱلتَّوَّاب", transliteration: "At-Tawwāb", meaning: "The Accepter of Repentance", example: "Allah forgives and accepts repentance no matter how many times one returns to Him sincerely." },
+                { arabic: "ٱلْمُنتَقِم", transliteration: "Al-Muntaqim", meaning: "The Avenger", example: "Allah punishes oppressors and wrongdoers when they persist in injustice." },
+                { arabic: "ٱلْعَفُو", transliteration: "Al-‘Afuw", meaning: "The Pardoner, The One Who Erases Sins", example: "Allah not only forgives but wipes away sins completely, as if they never existed." },
+                { arabic: "ٱلرَّؤُوف", transliteration: "Ar-Ra’ūf", meaning: "The Compassionate, The Most Kind", example: "Allah’s kindness is gentle and tender, like easing hardships gradually for His servants." },
+                { arabic: "مَالِكُ ٱلْمُلْك", transliteration: "Mālik-ul-Mulk", meaning: "The Owner of All Sovereignty", example: "Kingdoms rise and fall, but Allah alone owns all dominion forever." },
+                { arabic: "ذُوالْجَلَالِ وَالإكْرَام", transliteration: "Dhū-l-Jalāl wa-l-Ikrām", meaning: "The Lord of Majesty and Honor", example: "Allah alone possesses true majesty, deserving glory and honor from all creation." },
+                { arabic: "ٱلْمُقْسِط", transliteration: "Al-Muqsiṭ", meaning: "The Just, The Equitable", example: "Allah ensures justice is served fairly without bias or oppression." },
+                { arabic: "ٱلْجَامِع", transliteration: "Al-Jāmi‘", meaning: "The Gatherer", example: "Allah gathers people on the Day of Judgment and unites scattered hearts through faith." },
+                { arabic: "ٱلْغَني", transliteration: "Al-Ghaniyy", meaning: "The Self-Sufficient, Free of Need", example: "Allah is independent of all creation, while everything depends on Him." },
+                { arabic: "ٱلْمُغْني", transliteration: "Al-Mughnī", meaning: "The Enricher", example: "Allah grants wealth, sufficiency, and contentment to whomever He wills." },
+                { arabic: "ٱلْمَانِع", transliteration: "Al-Māni‘", meaning: "The Withholder, The Preventer", example: "Allah prevents harm or grants protection from evil out of wisdom." },
+                { arabic: "ٱلضَّار", transliteration: "Aḍ-Ḍārr", meaning: "The Creator of Harm", example: "Any harm that reaches creation is by Allah’s will — often as a test or hidden mercy." },
+                { arabic: "ٱلنَّافِع", transliteration: "An-Nāfi‘", meaning: "The Giver of Benefit", example: "Every benefit, cure, or success comes only from Allah." },
+                { arabic: "ٱلنُّور", transliteration: "An-Nūr", meaning: "The Light", example: "Allah is the light of the heavens and the earth; He guides hearts out of darkness into truth." },
+                { arabic: "ٱلْهَادِي", transliteration: "Al-Hādī", meaning: "The Guide", example: "Allah guides people to the straight path through His revelation and prophets." },
+                { arabic: "ٱلْبَدِيع", transliteration: "Al-Badī‘", meaning: "The Incomparable, The Originator", example: "Allah creates uniquely, without model or similarity — like the diversity of species." },
+                { arabic: "ٱلْبَاقِي", transliteration: "Al-Bāqī", meaning: "The Everlasting", example: "Everything perishes except Allah, who remains forever." },
+                { arabic: "ٱلْوَارِث", transliteration: "Al-Wārith", meaning: "The Inheritor", example: "When creation passes away, Allah remains as the true inheritor of all." },
+                { arabic: "ٱلرَّشِيد", transliteration: "Ar-Rashīd", meaning: "The Guide to the Right Path", example: "Allah directs people to wisdom, righteousness, and what benefits them." },
+                { arabic: "ٱلصَّبُور", transliteration: "As-Ṣabūr", meaning: "The Most Patient", example: "Allah does not hasten punishment for sinners but gives them chances to repent." },
+                { arabic: "ٱللّٰه", transliteration: "Allah", meaning: "The Greatest Name, The One and Only God", example: "This name encompasses all of His attributes — He alone is worthy of worship." },
+            ];
+
+            const gridContainer = document.querySelector('main');
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalArabic = document.getElementById('modal-arabic');
+            const modalMeaning = document.getElementById('modal-meaning');
+            const modalExample = document.getElementById('modal-example');
+
+            namesData.forEach(name => {
+                const card = document.createElement('div');
+                card.className = 'name-card bg-white p-4 sm:p-6 rounded-xl shadow-md border border-gray-200 flex flex-col justify-center items-center text-center';
+                card.innerHTML = `
+                    <p class="text-3xl sm:text-4xl text-green-600 font-bold mb-2">${name.arabic}</p>
+                    <p class="text-lg text-gray-800 font-semibold mb-1">${name.transliteration}</p>
+                `;
+                card.onclick = () => showModal(name);
+                gridContainer.appendChild(card);
+            });
+
+            function showModal(name) {
+                modalTitle.textContent = name.transliteration;
+                modalArabic.textContent = name.arabic;
+                modalMeaning.textContent = `Meaning: ${name.meaning}`;
+                modalExample.textContent = `Example: ${name.example}`;
+                modal.classList.remove('hidden');
+            }
+
+            window.closeModal = function() {
+                modal.classList.add('hidden');
+            };
+
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
